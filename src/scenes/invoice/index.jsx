@@ -1,36 +1,51 @@
-import { Box, Button, TextField, Select, MenuItem } from "@mui/material";
+import { Box, Button, TextField } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
-// import { useState } from "react";
+import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { useEffect } from "react";
+import { useState } from "react";
 import app from "../../firebase/firebaseInit";
-import { collection, addDoc, getFirestore } from "firebase/firestore";
+import { v4 as uuidv4, v4 } from "uuid";
 
 const db = getFirestore(app);
 
 const Invoice = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
+  const [successMessage, setSuccessMessage] = useState("");
+
   const handleFormSubmit = (values) => {
-    const { firstName, lastName, email, address1 } = values;
-    const user = {
-      firstName,
-      lastName,
+    const { name, cost, date, email, id, phone, profit } = values;
+    const invoice = {
+      name,
+      cost,
+      date,
       email,
-      address1,
+      id,
+      phone,
+      profit,
     };
-    addDoc(collection(db, "users"), user)
+    addDoc(collection(db, "invoices"), invoice)
       .then((docRef) => {
         console.log("Document written with ID: ", docRef.id);
-        alert("User Created Successfully");
+        setSuccessMessage("Invoice created successfully");
+        alert("Invoice created successfully");
       })
       .catch((error) => {
         console.error("Error adding document: ", error);
       });
-
-    console.log(values);
   };
+
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
 
   return (
     <Box m="20px">
@@ -62,32 +77,45 @@ const Invoice = () => {
                 fullWidth
                 variant="filled"
                 type="text"
-                label="First Name"
+                label="Name"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.firstName}
-                name="firstName"
-                error={!!touched.firstName && !!errors.firstName}
-                helperText={touched.firstName && errors.firstName}
-                sx={{ gridColumn: "span 2" }}
+                value={values.name}
+                name="name"
+                error={!!touched.name && !!errors.name}
+                helperText={touched.name && errors.name}
+                sx={{ gridColumn: "span 4" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
-                type="text"
-                label="Last Name"
+                type="number"
+                label="Cost"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.lastName}
-                name="lastName"
-                error={!!touched.lastName && !!errors.lastName}
-                helperText={touched.lastName && errors.lastName}
-                sx={{ gridColumn: "span 2" }}
+                value={values.cost}
+                name="cost"
+                error={!!touched.cost && !!errors.cost}
+                helperText={touched.cost && errors.cost}
+                sx={{ gridColumn: "span 4" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
-                type="text"
+                type="date"
+                label="Date"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.date}
+                name="date"
+                error={!!touched.date && !!errors.date}
+                helperText={touched.date && errors.date}
+                sx={{ gridColumn: "span 4" }}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="email"
                 label="Email"
                 onBlur={handleBlur}
                 onChange={handleChange}
@@ -95,67 +123,60 @@ const Invoice = () => {
                 name="email"
                 error={!!touched.email && !!errors.email}
                 helperText={touched.email && errors.email}
-                sx={{ gridColumn: "span 4" }}
+                sx={{ gridColumn: "span 2" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="text"
-                label="Contact Number"
+                label="ID"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.contact}
-                name="contact"
-                error={!!touched.contact && !!errors.contact}
-                helperText={touched.contact && errors.contact}
-                sx={{ gridColumn: "span 4" }}
+                value={values.id}
+                name="id"
+                error={!!touched.id && !!errors.id}
+                helperText={touched.id && errors.id}
+                sx={{ gridColumn: "span 2" }}
+                disabled
+              />
+
+              <TextField
+                fullWidth
+                variant="filled"
+                type="tel"
+                label="Phone"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.phone}
+                name="phone"
+                error={!!touched.phone && !!errors.phone}
+                helperText={touched.phone && errors.phone}
+                sx={{ gridColumn: "span 2" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
-                type="text"
-                label="Address 1"
+                type="number"
+                label="Profit"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.address1}
-                name="address1"
-                error={!!touched.address1 && !!errors.address1}
-                helperText={touched.address1 && errors.address1}
-                sx={{ gridColumn: "span 4" }}
+                value={values.profit}
+                name="profit"
+                error={!!touched.profit && !!errors.profit}
+                helperText={touched.profit && errors.profit}
+                sx={{ gridColumn: "span 2" }}
               />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                label="Address 2"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.address2}
-                name="address2"
-                error={!!touched.address2 && !!errors.address2}
-                helperText={touched.address2 && errors.address2}
-                sx={{ gridColumn: "span 4" }}
-              />
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={values.type}
-                defaultValue="type"
-                label="type"
-                name="type"
-                onChange={handleChange}
-                onBlur={handleBlur}
-              >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
-              </Select>
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">
-                Create New User
+                Create Invoice
               </Button>
             </Box>
+            {successMessage && (
+              <Box mt="20px" color="green">
+                {successMessage}
+              </Box>
+            )}
           </form>
         )}
       </Formik>
@@ -163,28 +184,24 @@ const Invoice = () => {
   );
 };
 
-const phoneRegExp =
-  /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
-
 const checkoutSchema = yup.object().shape({
-  firstName: yup.string().required("required"),
-  lastName: yup.string().required("required"),
-  email: yup.string().email("invalid email").required("required"),
-  contact: yup
-    .string()
-    .matches(phoneRegExp, "Phone number is not valid")
-    .required("required"),
-  address1: yup.string().required("required"),
-  address2: yup.string().required("required"),
+  name: yup.string().required("Required"),
+  cost: yup.number().required("Required"),
+  date: yup.date().required("Required"),
+  email: yup.string().email("Invalid email").required("Required"),
+  id: yup.string().required("Required"),
+  phone: yup.string().required("Required"),
+  profit: yup.number().required("Required"),
 });
+
 const initialValues = {
-  firstName: "",
-  lastName: "",
+  name: "",
+  cost: "",
+  date: "",
   email: "",
-  contact: "",
-  address1: "",
-  address2: "",
-  type: "type",
+  id: uuidv4().slice(0, 8),
+  phone: "",
+  profit: "",
 };
 
 export default Invoice;

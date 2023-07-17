@@ -10,6 +10,7 @@ import Bar from "./scenes/bar";
 import Form from "./scenes/form";
 import Line from "./scenes/line";
 import Pie from "./scenes/pie";
+import Invoice from "./scenes/invoice";
 // import FAQ from "./scenes/faq";
 // import Geography from "./scenes/geography";
 import { CssBaseline, ThemeProvider } from "@mui/material";
@@ -40,6 +41,7 @@ function App() {
               {/* <Route path="/faq" element={<FAQ />} /> */}
               <Route path="/calendar" element={<Calendar />} />
               {/* <Route path="/geography" element={<Geography />} /> */}
+              <Route path="/invoice" element={<Invoice />} />
             </Routes>
           </main>
         </div>

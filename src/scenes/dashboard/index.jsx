@@ -12,8 +12,36 @@ import GeographyChart from "../../components/Geography";
 import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
+import { useState, useEffect } from "react";
+import { collection, getDocs, getFirestore } from "firebase/firestore";
+import app from "../../firebase/firebaseInit";
+
+const db = getFirestore(app);
 
 const Dashboard = () => {
+  const [profit, setProfit] = useState(0);
+  const [transactionss, setTransactionss] = useState(0);
+  const [latestTransactions, setLatestTransactions] = useState([]);
+
+  useEffect(() => {
+    const getProfit = async () => {
+      const querySnapshot = await getDocs(collection(db, "invoices"));
+      let profit = 0;
+      let transactions = 0;
+      const latesttransactions = [];
+      querySnapshot.forEach((doc) => {
+        profit += doc.data().profit;
+        transactions += doc.data().cost;
+        latesttransactions.push(doc.data());
+        console.log(doc.data().profit);
+      });
+      setProfit(profit);
+      setTransactionss(transactions);
+      setLatestTransactions(latesttransactions);
+    };
+    getProfit();
+  }, []);
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -74,7 +102,7 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="431,225"
+              title={`$${transactionss}`}
             subtitle="Sales Obtained"
             progress="0.50"
             increase="+21%"
@@ -150,7 +178,7 @@ const Dashboard = () => {
                 fontWeight="bold"
                 color={colors.greenAccent[500]}
               >
-                $59,342.32
+                ${profit}
               </Typography>
             </Box>
             <Box>
@@ -183,7 +211,7 @@ const Dashboard = () => {
               Recent Transactions
             </Typography>
           </Box>
-          {mockTransactions.map((transaction, i) => (
+          {latestTransactions.map((transaction, i) => (
             <Box
               key={`${transaction.txId}-${i}`}
               display="flex"
@@ -201,7 +229,7 @@ const Dashboard = () => {
                   {transaction.txId}
                 </Typography>
                 <Typography color={colors.grey[100]}>
-                  {transaction.user}
+                  {transaction.name}
                 </Typography>
               </Box>
               <Box color={colors.grey[100]}>{transaction.date}</Box>

@@ -1,13 +1,30 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataTeam } from "../../Data/mockData";
+import { fetchTeamData } from "../../Data/mockData";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import Header from "../../components/Header";
+import { useEffect } from "react";
+import { useState } from "react";
+import Button from "@mui/material/Button";
 
 const Team = () => {
+  const [mockDataTeam, setMockDataTeam] = useState([]);
+  useEffect(() => {
+    // Call the fetchTeamData function
+    fetchTeamData()
+      .then((data) => {
+        // Update the value of mockDataTeam
+        setMockDataTeam(data);
+        console.log(data);
+        // Do something with the retrieved data
+      })
+      .catch((error) => {
+        console.log("Error:", error);
+      });
+  }, []);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const columns = [
@@ -101,6 +118,18 @@ const Team = () => {
         }}
       >
         <DataGrid checkboxSelection rows={mockDataTeam} columns={columns} />
+        <Box display="flex" justifyContent="end" mt="20px" mb="30px">
+          <Button
+            type="submit"
+            color="secondary"
+            variant="contained"
+            onClick={() => {
+              window.location.href = "/form";
+            }}
+          >
+            Create New User
+          </Button>
+        </Box>
       </Box>
     </Box>
   );

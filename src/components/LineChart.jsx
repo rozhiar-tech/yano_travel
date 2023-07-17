@@ -1,9 +1,26 @@
 import { ResponsiveLine } from "@nivo/line";
 import { useTheme } from "@mui/material";
 import { tokens } from "../theme";
-import { mockLineData as data } from "./../Data/mockData";
+import { fetchLineChartData } from "./../Data/mockData";
+import { useEffect, useState } from "react";
 
 const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    // Call the fetchDataInvoices function
+    fetchLineChartData()
+      .then((data) => {
+        // Update the value of mockDataInvoices
+        setData(data);
+        console.log(data);
+        // Do something with the retrieved data
+      })
+      .catch((error) => {
+        console.log("Error:", error);
+      });
+  }, []);
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 

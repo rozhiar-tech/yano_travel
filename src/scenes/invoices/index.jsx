@@ -1,10 +1,29 @@
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme, Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataInvoices } from "../../Data/mockData";
+import { fetchDataInvoices } from "../../Data/mockData";
 import Header from "../../components/Header";
+import { useState, useEffect } from "react";
+import { CSVLink } from "react-csv";
 
 const Invoices = () => {
+  const [mockDataInvoices, setMockDataInvoices] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null);
+
+  useEffect(() => {
+    // Call the fetchDataInvoices function
+    fetchDataInvoices()
+      .then((data) => {
+        // Update the value of mockDataInvoices
+        setMockDataInvoices(data);
+        console.log(data);
+        // Do something with the retrieved data
+      })
+      .catch((error) => {
+        console.log("Error:", error);
+      });
+  }, []);
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const columns = [
@@ -42,6 +61,34 @@ const Invoices = () => {
     },
   ];
 
+  const handleExport = () => {
+    if (selectedRow) {
+      const csvData = [
+        {
+          ID: selectedRow.id,
+          Name: selectedRow.name,
+          "Phone Number": selectedRow.phone,
+          Email: selectedRow.email,
+          Cost: selectedRow.cost,
+          Date: selectedRow.date,
+        },
+      ];
+
+      // Create a CSVLink element with the CSV data
+      const csvLink = (
+        <CSVLink data={csvData} filename="selected_row.csv">
+          Export/Print Selected Row
+        </CSVLink>
+      );
+
+      // Trigger the CSV download by programmatically clicking the hidden CSVLink
+      const link = document.createElement("a");
+      link.href = csvLink.props.href;
+      link.download = csvLink.props.filename;
+      link.click();
+    }
+  };
+
   return (
     <Box m="20px">
       <Header title="INVOICES" subtitle="List of Invoice Balances" />
@@ -74,7 +121,32 @@ const Invoices = () => {
           },
         }}
       >
-        <DataGrid checkboxSelection rows={mockDataInvoices} columns={columns} />
+        <DataGrid
+          checkboxSelection
+          rows={mockDataInvoices}
+          columns={columns}
+          onRowClick={(params) => setSelectedRow(params.row)}
+        />
+      </Box>
+      {selectedRow && (
+        <Box mt={2}>
+          <Typography variant="h6">Selected Row:</Typography>
+          <Typography>Name: {selectedRow.name}</Typography>
+          <Typography>Email: {selectedRow.email}</Typography>
+          <Typography>Phone Number: {selectedRow.phone}</Typography>
+          <Typography>Cost: ${selectedRow.cost}</Typography>
+          <Typography>Date: {selectedRow.date}</Typography>
+        </Box>
+      )}
+      <Box mt={2}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleExport}
+          disabled={!selectedRow}
+        >
+          Export/Print Selected Row
+        </Button>
       </Box>
     </Box>
   );
