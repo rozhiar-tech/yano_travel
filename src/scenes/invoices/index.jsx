@@ -1,5 +1,5 @@
-import { Box, Typography, useTheme, Button } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { Box, Typography, useTheme, Button, Grid } from "@mui/material";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { fetchDataInvoices } from "../../Data/mockData";
 import Header from "../../components/Header";
@@ -119,13 +119,17 @@ const Invoices = () => {
           "& .MuiCheckbox-root": {
             color: `${colors.greenAccent[200]} !important`,
           },
+          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+            color: `${colors.grey[100]} !important`,
+          },
         }}
       >
         <DataGrid
           checkboxSelection
           rows={mockDataInvoices}
           columns={columns}
-          onRowClick={(params) => setSelectedRow(params.row)}
+          // onRowClick={(params) => setSelectedRow(params.row)}
+          components={{ Toolbar: GridToolbar }}
         />
       </Box>
       {selectedRow && (
