@@ -1,9 +1,9 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, Select, TextField } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { addDoc, collection, getFirestore, getDocs } from "firebase/firestore";
 import { useEffect } from "react";
 import { useState } from "react";
 import app from "../../firebase/firebaseInit";
@@ -12,6 +12,7 @@ import { v4 as uuidv4, v4 } from "uuid";
 const db = getFirestore(app);
 
 const Invoice = () => {
+  const [companyNames, setCompanyNames] = useState([]);
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const [successMessage, setSuccessMessage] = useState("");
@@ -38,14 +39,44 @@ const Invoice = () => {
       });
   };
 
+  const handleSelectChange = (event) => {
+    const { value } = event.target;
+
+    // const selectedCompany = companyNames.find((company) => {
+    //   return company === value;
+    // });
+
+    // const { email, phone, id } = selectedCompany;
+    // setFieldValue("email", email);
+    // setFieldValue("phone", phone);
+    // setFieldValue("id", id);
+  };
   useEffect(() => {
-    if (successMessage) {
-      const timer = setTimeout(() => {
-        setSuccessMessage("");
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [successMessage]);
+    const getAllUserNames = () => {
+      // Get a reference to the "users" collection in Firestore
+      const usersRef = collection(db, "users");
+      const names = [];
+      // Perform a query to get all documents in the "users" collection
+      return getDocs(usersRef)
+        .then((querySnapshot) => {
+          // Loop through each document in the query snapshot
+          querySnapshot.forEach((doc) => {
+            // Extract the firstName and lastName fields from each document
+            const { name } = doc.data();
+            // Construct the full name and add it to the names array
+            const fullName = `${name}`;
+            names.push(fullName);
+          });
+
+          setCompanyNames(names); // Return the array of names
+        })
+        .catch((error) => {
+          console.error("Error getting users: ", error);
+          return []; // Return an empty array in case of an error
+        });
+    };
+    getAllUserNames();
+  }, []);
 
   return (
     <Box m="20px">
@@ -166,6 +197,20 @@ const Invoice = () => {
                 helperText={touched.profit && errors.profit}
                 sx={{ gridColumn: "span 2" }}
               />
+
+              <Select
+                fullWidth
+                variant="filled"
+                label="Status"
+                value={companyNames}
+                onChange={handleChange}
+              >
+                {companyNames.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </Select>
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">

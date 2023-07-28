@@ -5,25 +5,41 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
 // import { useState } from "react";
 import app from "../../firebase/firebaseInit";
-import { collection, addDoc, getFirestore } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  addDoc,
+  collection,
+  getFirestore,
+} from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { useState } from "react";
 
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
+  const [userId, setUserId] = useState(false);
 
   const handleFormSubmit = (values) => {
-    const { firstName, lastName, email,address1 } = values;
-    const user = {
-      firstName,
-      lastName,
-      email,
-      address1,
-      
-    };
-    addDoc(collection(db, "users"), user)
-      .then((docRef) => {
-        console.log("Document written with ID: ", docRef.id);
+    const { firstName, lastName, email, address1 } = values;
+
+    createUserWithEmailAndPassword(auth, email, "123456")
+      .then(async (userCredential) => {
+        // Get the user ID from the userCredential object
+        const { user } = userCredential;
+        // Set the document ID in Firestore to be the same as the authentication ID
+        await setDoc(doc(db, "users", user.uid), {
+          name: firstName,
+          lastName,
+          email,
+          address1,
+          address2: values.address2,
+          access: values.access,
+          id: user.uid,
+          age: values.age,
+        });
         alert("User Created Successfully");
       })
       .catch((error) => {
@@ -135,6 +151,32 @@ const Form = () => {
                 name="address2"
                 error={!!touched.address2 && !!errors.address2}
                 helperText={touched.address2 && errors.address2}
+                sx={{ gridColumn: "span 4" }}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Age"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.age}
+                name="age"
+                error={!!touched.age && !!errors.age}
+                helperText={touched.age && errors.age}
+                sx={{ gridColumn: "span 4" }}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Access"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.access}
+                name="access"
+                error={!!touched.access && !!errors.access}
+                helperText={touched.access && errors.access}
                 sx={{ gridColumn: "span 4" }}
               />
             </Box>
