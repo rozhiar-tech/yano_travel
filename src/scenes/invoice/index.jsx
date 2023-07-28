@@ -1,4 +1,4 @@
-import { Box, Button, Select, TextField } from "@mui/material";
+import { Box, Button, TextField } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -7,12 +7,15 @@ import { addDoc, collection, getFirestore, getDocs } from "firebase/firestore";
 import { useEffect } from "react";
 import { useState } from "react";
 import app from "../../firebase/firebaseInit";
-import { v4 as uuidv4, v4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 const db = getFirestore(app);
 
 const Invoice = () => {
   const [companyNames, setCompanyNames] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState("");
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const [successMessage, setSuccessMessage] = useState("");
@@ -27,6 +30,9 @@ const Invoice = () => {
       id,
       phone,
       profit,
+      company: selectedCompany,
+      paymentStatus: "pending",
+      product: selectedProduct,
     };
     addDoc(collection(db, "invoices"), invoice)
       .then((docRef) => {
@@ -40,17 +46,12 @@ const Invoice = () => {
   };
 
   const handleSelectChange = (event) => {
-    const { value } = event.target;
-
-    // const selectedCompany = companyNames.find((company) => {
-    //   return company === value;
-    // });
-
-    // const { email, phone, id } = selectedCompany;
-    // setFieldValue("email", email);
-    // setFieldValue("phone", phone);
-    // setFieldValue("id", id);
+    setSelectedCompany(event.target.value);
   };
+  const handleProductChange = (event) => {
+    setSelectedProduct(event.target.value);
+  };
+
   useEffect(() => {
     const getAllUserNames = () => {
       // Get a reference to the "users" collection in Firestore
@@ -75,6 +76,30 @@ const Invoice = () => {
           return []; // Return an empty array in case of an error
         });
     };
+    const getAllProducts = () => {
+      // Get a reference to the "users" collection in Firestore
+      const productsRef = collection(db, "products");
+      const names = [];
+      // Perform a query to get all documents in the "users" collection
+      return getDocs(productsRef)
+        .then((querySnapshot) => {
+          // Loop through each document in the query snapshot
+          querySnapshot.forEach((doc) => {
+            // Extract the firstName and lastName fields from each document
+            const { name } = doc.data();
+            // Construct the full name and add it to the names array
+            const fullName = `${name}`;
+            names.push(fullName);
+          });
+
+          setProducts(names); // Return the array of names
+        })
+        .catch((error) => {
+          console.error("Error getting users: ", error);
+          return []; // Return an empty array in case of an error
+        });
+    };
+    getAllProducts();
     getAllUserNames();
   }, []);
 
@@ -197,20 +222,56 @@ const Invoice = () => {
                 helperText={touched.profit && errors.profit}
                 sx={{ gridColumn: "span 2" }}
               />
-
-              <Select
+              <TextField
                 fullWidth
                 variant="filled"
-                label="Status"
-                value={companyNames}
+                type="number"
+                label="Quantity"
+                onBlur={handleBlur}
                 onChange={handleChange}
+                value={values.quantity}
+                name="quantity"
+                error={!!touched.profit && !!errors.profit}
+                helperText={touched.profit && errors.profit}
+                sx={{ gridColumn: "span 2" }}
+              />
+
+              <select
+                value={selectedCompany}
+                onChange={handleSelectChange}
+                style={{
+                  padding: "8px",
+                  fontSize: "16px",
+                  borderRadius: "4px",
+                  border: "1px solid #888",
+                  backgroundColor: "#888",
+                  color: "#333",
+                }}
               >
-                {companyNames.map((name) => (
-                  <option key={name} value={name}>
-                    {name}
+                {companyNames.map((companyName) => (
+                  <option key={companyName} value={companyName}>
+                    {companyName}
                   </option>
                 ))}
-              </Select>
+              </select>
+              <select
+                value={selectedProduct}
+                onChange={handleProductChange}
+                style={{
+                  padding: "8px",
+                  fontSize: "16px",
+                  borderRadius: "4px",
+                  border: "1px solid #888",
+                  backgroundColor: "#888",
+                  color: "#333",
+                }}
+              >
+                {products.map((produc) => (
+                  <option key={produc} value={produc}>
+                    {produc}
+                  </option>
+                ))}
+              </select>
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">

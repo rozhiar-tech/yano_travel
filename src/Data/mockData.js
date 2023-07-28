@@ -225,6 +225,19 @@ export const fetchDataInvoices = async () => {
     console.log(error);
   }
 };
+
+export const fetchProductData = async () => {
+  const mockDataProducts = [];
+  try {
+    const querySnapshot = await getDocs(collection(db, "products"));
+    querySnapshot.forEach((doc) => {
+      mockDataProducts.push(doc.data());
+    });
+    return mockDataProducts;
+  } catch (error) {
+    console.log(error);
+  }
+};
 export const mockTransactions = [
   {
     txId: "01e4dsa",

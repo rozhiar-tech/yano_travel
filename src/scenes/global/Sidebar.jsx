@@ -17,6 +17,8 @@ import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import UserImage from "./../../assets/user.jpg";
+import InventoryIcon from "@mui/icons-material/Inventory";
+import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -137,6 +139,20 @@ const Sidebar = () => {
               title="Manage Team"
               to="/team"
               icon={<PeopleOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Products"
+              to="/products"
+              icon={<InventoryIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Add Products"
+              to="/addProduct"
+              icon={<CreateNewFolderIcon />}
               selected={selected}
               setSelected={setSelected}
             />

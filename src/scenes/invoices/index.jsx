@@ -5,9 +5,12 @@ import { fetchDataInvoices } from "../../Data/mockData";
 import Header from "../../components/Header";
 import { useState, useEffect } from "react";
 import { CSVLink } from "react-csv";
-
+import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
+import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
+import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 const Invoices = () => {
   const [mockDataInvoices, setMockDataInvoices] = useState([]);
+  const [paymentStatus, setPaymentStatus] = useState("pending");
   const [selectedRow, setSelectedRow] = useState(null);
 
   useEffect(() => {
@@ -16,6 +19,7 @@ const Invoices = () => {
       .then((data) => {
         // Update the value of mockDataInvoices
         setMockDataInvoices(data);
+        setPaymentStatus(data.paymentStatus);
         console.log(data);
         // Do something with the retrieved data
       })
@@ -58,6 +62,43 @@ const Invoices = () => {
       field: "date",
       headerName: "Date",
       flex: 1,
+    },
+    {
+      field: "paymentStatus",
+      headerName: "Access Level",
+      flex: 1,
+      renderCell: ({ row: { paymentStatus } }) => {
+        return (
+          <Box
+            width="60%"
+            m="0 auto"
+            p="5px"
+            display="flex"
+            justifyContent="center"
+            onClick={() => {
+              console.log(paymentStatus);
+              if (paymentStatus === "pending") {
+                setPaymentStatus("aproved");
+              }
+            }}
+            backgroundColor={
+              paymentStatus === "aproved"
+                ? colors.greenAccent[600]
+                : paymentStatus === "pending"
+                ? colors.greenAccent[700]
+                : colors.greenAccent[700]
+            }
+            borderRadius="4px"
+          >
+            {paymentStatus === "aproved" && <AdminPanelSettingsOutlinedIcon />}
+            {paymentStatus === "pending" && <SecurityOutlinedIcon />}
+            {paymentStatus === "pending" && <LockOpenOutlinedIcon />}
+            <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
+              {paymentStatus}
+            </Typography>
+          </Box>
+        );
+      },
     },
   ];
 

@@ -11,6 +11,7 @@ import Form from "./scenes/form";
 import Line from "./scenes/line";
 import Pie from "./scenes/pie";
 import Invoice from "./scenes/invoice";
+import Products from "./scenes/products";
 // import FAQ from "./scenes/faq";
 // import Geography from "./scenes/geography";
 import { CssBaseline, ThemeProvider } from "@mui/material";
@@ -22,6 +23,7 @@ import { getFirestore, doc, onSnapshot } from "firebase/firestore";
 import Login from "./scenes/login";
 
 import { CirclesWithBar } from "react-loader-spinner";
+import ProductForm from "./scenes/addProducts";
 const auth = getAuth(app);
 const db = getFirestore(app);
 
@@ -112,6 +114,8 @@ function App() {
                   <Route path="/calendar" element={<Calendar />} />
                   {/* <Route path="/geography" element={<Geography />} /> */}
                   <Route path="/invoice" element={<Invoice />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/addProduct" element={<ProductForm />} />
                 </Routes>
               </main>
             </>

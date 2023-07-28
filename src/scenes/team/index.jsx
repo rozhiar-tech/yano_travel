@@ -30,6 +30,23 @@ const Team = () => {
   const columns = [
     { field: "id", headerName: "ID" },
     {
+      field: "profilePicture",
+      headerName: "Profile Picture",
+      flex: 1,
+      renderCell: ({ row: { imageUrl } }) => {
+        return (
+          <Box width="60%" m="0 auto" display="flex" justifyContent="center">
+            <img
+              src={imageUrl} // Assuming each user object has an 'imageUrl' property
+              alt="Profile"
+              style={{ width: "50px", height: "50px", borderRadius: "50%" }}
+            />
+          </Box>
+        );
+      },
+    },
+
+    {
       field: "name",
       headerName: "Name",
       flex: 1,

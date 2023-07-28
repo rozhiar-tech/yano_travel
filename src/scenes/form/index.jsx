@@ -1,35 +1,48 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, TextField, Input } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
 // import { useState } from "react";
 import app from "../../firebase/firebaseInit";
-import {
-  doc,
-  setDoc,
-  addDoc,
-  collection,
-  getFirestore,
-} from "firebase/firestore";
+import { doc, setDoc, getFirestore } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL, getStorage } from "firebase/storage";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
 const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
+  const [selectedFile, setSelectedFile] = useState(null);
   const [userId, setUserId] = useState(false);
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
 
-  const handleFormSubmit = (values) => {
-    const { firstName, lastName, email, address1 } = values;
+  const handleFormSubmit = async (values) => {
+    const { firstName, lastName, email, address1, profilePicture } = values;
 
     createUserWithEmailAndPassword(auth, email, "123456")
       .then(async (userCredential) => {
         // Get the user ID from the userCredential object
         const { user } = userCredential;
-        // Set the document ID in Firestore to be the same as the authentication ID
+
+        let imageUrl = null;
+
+        // If a file is selected, upload it to Firebase Storage
+        if (selectedFile) {
+          const fileRef = ref(storage, `profile-images/${uuidv4()}`);
+          await uploadBytes(fileRef, selectedFile);
+
+          // Get the download URL of the uploaded file
+          imageUrl = await getDownloadURL(fileRef);
+        }
+
+        // Set user data in Firestore
         await setDoc(doc(db, "users", user.uid), {
           name: firstName,
           lastName,
@@ -39,7 +52,9 @@ const Form = () => {
           access: values.access,
           id: user.uid,
           age: values.age,
+          imageUrl: imageUrl, // Include the imageUrl in the document data
         });
+
         alert("User Created Successfully");
       })
       .catch((error) => {
@@ -177,6 +192,19 @@ const Form = () => {
                 name="access"
                 error={!!touched.access && !!errors.access}
                 helperText={touched.access && errors.access}
+                sx={{ gridColumn: "span 4" }}
+              />
+              <Input
+                type="file"
+                fullWidth
+                variant="filled"
+                label="Profile Picture"
+                onBlur={handleBlur}
+                onChange={handleFileChange}
+                value={values.profilePicture}
+                name="profilePicture"
+                error={!!touched.profilePicture && !!errors.profilePicture}
+                helperText={touched.profilePicture && errors.profilePicture}
                 sx={{ gridColumn: "span 4" }}
               />
             </Box>
