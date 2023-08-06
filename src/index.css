@@ -1,18 +1,18 @@
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap");
-
 html,
 body,
-#root,
-.app,
-.content {
+#root {
   height: 100%;
   width: 100%;
   font-family: "Source Sans Pro", sans-serif;
 }
 
 .app {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 250px) 1fr; /* Sidebar width is fixed, main content will fill remaining space */
   position: relative;
+  height: 100%;
+  width: 100%;
 }
 
 ::-webkit-scrollbar {

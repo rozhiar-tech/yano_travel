@@ -24,6 +24,7 @@ import Login from "./scenes/login";
 
 import { CirclesWithBar } from "react-loader-spinner";
 import ProductForm from "./scenes/addProducts";
+import Vault from "./scenes/voult";
 const auth = getAuth(app);
 const db = getFirestore(app);
 
@@ -116,6 +117,7 @@ function App() {
                   <Route path="/invoice" element={<Invoice />} />
                   <Route path="/products" element={<Products />} />
                   <Route path="/addProduct" element={<ProductForm />} />
+                  <Route path="/vault" element={<Vault />} />
                 </Routes>
               </main>
             </>

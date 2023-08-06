@@ -19,6 +19,7 @@ import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import UserImage from "./../../assets/user.jpg";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
+import EnhancedEncryptionIcon from "@mui/icons-material/EnhancedEncryption";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -189,6 +190,13 @@ const Sidebar = () => {
               title="Profile Form"
               to="/form"
               icon={<PersonOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="vault"
+              to="/vault"
+              icon={<EnhancedEncryptionIcon />}
               selected={selected}
               setSelected={setSelected}
             />

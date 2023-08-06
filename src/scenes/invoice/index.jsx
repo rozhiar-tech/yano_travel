@@ -1,9 +1,17 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, TextField, Link } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
-import { addDoc, collection, getFirestore, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getFirestore,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { useEffect } from "react";
 import { useState } from "react";
 import app from "../../firebase/firebaseInit";
@@ -14,13 +22,14 @@ const db = getFirestore(app);
 const Invoice = () => {
   const [companyNames, setCompanyNames] = useState([]);
   const [products, setProducts] = useState([]);
+  const [capital, setCapital] = useState(0);
   const [selectedCompany, setSelectedCompany] = useState("");
   const [selectedProduct, setSelectedProduct] = useState("");
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const [successMessage, setSuccessMessage] = useState("");
 
-  const handleFormSubmit = (values) => {
+  const handleFormSubmit = async (values) => {
     const { name, cost, date, email, id, phone, profit } = values;
     const invoice = {
       name,
@@ -34,15 +43,26 @@ const Invoice = () => {
       paymentStatus: "pending",
       product: selectedProduct,
     };
-    addDoc(collection(db, "invoices"), invoice)
-      .then((docRef) => {
-        console.log("Document written with ID: ", docRef.id);
-        setSuccessMessage("Invoice created successfully");
-        alert("Invoice created successfully");
-      })
-      .catch((error) => {
-        console.error("Error adding document: ", error);
-      });
+    try {
+      // Add the invoice to the "invoices" collection
+      await addDoc(collection(db, "invoices"), invoice);
+
+      // Update the capital by subtracting the cost
+      const newCapital = capital - cost;
+
+      // Update the capital in Firestore
+      const capitalRef = doc(db, "capital", "m7Wn6t1mggr5BqQGiqtX"); // Replace "your_document_id_here" with the actual document ID for the capital data
+      await updateDoc(capitalRef, { amount: newCapital });
+
+      console.log("Invoice added successfully.");
+      setSuccessMessage("Invoice created successfully");
+      alert("Invoice created successfully");
+
+      // Update the local state to reflect the new capital value
+      setCapital(newCapital);
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
   };
 
   const handleSelectChange = (event) => {
@@ -99,6 +119,22 @@ const Invoice = () => {
           return []; // Return an empty array in case of an error
         });
     };
+    const getCapital = () => {
+      // Get a reference to the "capital" document in Firestore
+      const capitalRef = doc(db, "capital", "m7Wn6t1mggr5BqQGiqtX"); // Replace "your_document_id_here" with the actual document ID for the capital data
+      // Perform a query to get the document
+      return getDoc(capitalRef)
+        .then((doc) => {
+          // Extract the amount field from the document
+          const { amount } = doc.data();
+          // Set the local state to the amount
+          setCapital(amount);
+        })
+        .catch((error) => {
+          console.error("Error getting capital: ", error);
+        });
+    };
+    getCapital();
     getAllProducts();
     getAllUserNames();
   }, []);
@@ -286,6 +322,16 @@ const Invoice = () => {
           </form>
         )}
       </Formik>
+      <Box display="flex" justifyContent="end" mt="20px">
+        <Button type="submit" color="secondary" variant="contained">
+          Create Invoice
+        </Button>
+      </Box>
+      {successMessage && (
+        <Box mt="20px" color="green">
+          {successMessage}
+        </Box>
+      )}
     </Box>
   );
 };
