@@ -1,4 +1,11 @@
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  Typography,
+  useTheme,
+  TextField,
+} from "@mui/material";
 import { tokens } from "../../theme";
 import { mockTransactions } from "./../../Data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
@@ -13,9 +20,14 @@ import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
 import { useState, useEffect } from "react";
-import { collection, getDocs, getFirestore } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  setDoc,
+  doc,
+} from "firebase/firestore";
 import app from "../../firebase/firebaseInit";
-
 
 const db = getFirestore(app);
 
@@ -23,6 +35,7 @@ const Dashboard = () => {
   const [profit, setProfit] = useState(0);
   const [transactionss, setTransactionss] = useState(0);
   const [latestTransactions, setLatestTransactions] = useState([]);
+  const [conversionRate, setConversionRate] = useState(0);
 
   useEffect(() => {
     const getProfit = async () => {
@@ -45,6 +58,29 @@ const Dashboard = () => {
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const handleConversionRateChange = (event) => {
+    setConversionRate(event.target.value);
+  };
+  const handleSaveConversionRate = async () => {
+    if (isNaN(conversionRate) || parseFloat(conversionRate) <= 0) {
+      // Handle invalid input
+      return;
+    }
+
+    try {
+      // Save the entered conversion rate to Firestore
+      const conversionRateRef = doc(db, "conversionRates", "dailyRate");
+      await setDoc(conversionRateRef, { rate: parseFloat(conversionRate) });
+
+      // Clear the conversion rate input field
+      // setConversionRate("");
+
+      console.log("Conversion rate saved successfully.");
+    } catch (error) {
+      console.error("Error saving conversion rate: ", error);
+      // Handle error state or display error message to the user
+    }
+  };
 
   return (
     <Box m="20px">
@@ -77,6 +113,37 @@ const Dashboard = () => {
       >
         {/* ROW 1 */}
         <Box
+          gridColumn="span 12"
+          backgroundColor={colors.primary[400]}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Box textAlign="center">
+            <Typography variant="h6">Daily Conversion Rate</Typography>
+            <Typography variant="body1" color={colors.grey[100]}>
+              Today {new Date().toLocaleDateString()} 100$ is equal to:{" "}
+              {conversionRate} IQD
+            </Typography>
+            <TextField
+              label="Amount in IQD"
+              type="number"
+              value={conversionRate}
+              onChange={handleConversionRateChange}
+              fullWidth
+              sx={{ mt: 2 }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSaveConversionRate}
+              sx={{ mt: 2 }}
+            >
+              Save Rate
+            </Button>
+          </Box>
+        </Box>
+        <Box
           gridColumn="span 3"
           backgroundColor={colors.primary[400]}
           display="flex"
@@ -103,7 +170,7 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-              title={`$${transactionss}`}
+            title={`$${transactionss}`}
             subtitle="Sales Obtained"
             progress="0.50"
             increase="+21%"
