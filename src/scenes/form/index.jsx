@@ -18,13 +18,13 @@ const storage = getStorage(app);
 const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [selectedFile, setSelectedFile] = useState(null);
-  const [userId, setUserId] = useState(false);
+  // const [userId, setUserId] = useState(false);
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
   };
 
   const handleFormSubmit = async (values) => {
-    const { firstName, lastName, email, address1, profilePicture } = values;
+    const { firstName, lastName, email, address1 } = values;
 
     createUserWithEmailAndPassword(auth, email, "123456")
       .then(async (userCredential) => {

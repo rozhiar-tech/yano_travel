@@ -90,6 +90,7 @@ const Loan = () => {
       handleCloseModal();
 
       console.log("Loan added successfully.");
+      console.log(capital);
     } catch (error) {
       console.error("Error adding loan: ", error);
       // Handle error state or display error message to the user

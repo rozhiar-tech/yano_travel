@@ -7,7 +7,6 @@ import {
   TextField,
 } from "@mui/material";
 import { tokens } from "../../theme";
-import { mockTransactions } from "./../../Data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import EmailIcon from "@mui/icons-material/Email";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";

@@ -5,7 +5,6 @@ import {
   Typography,
   TextField,
   Button,
-  Grid,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import StatBox from "../../components/StatBox";
@@ -13,7 +12,6 @@ import StatBox from "../../components/StatBox";
 import {
   collection,
   getDocs,
-  getDoc,
   updateDoc,
   doc,
   getFirestore,

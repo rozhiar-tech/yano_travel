@@ -1,4 +1,4 @@
-import { Box, Typography, useTheme, Button, Grid } from "@mui/material";
+import { Box, Typography, useTheme, Button } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { fetchDataInvoices } from "../../Data/mockData";
@@ -14,6 +14,7 @@ const Invoices = () => {
   const [selectedRow, setSelectedRow] = useState(null);
 
   useEffect(() => {
+    setSelectedRow(mockDataInvoices[0]);
     // Call the fetchDataInvoices function
     fetchDataInvoices()
       .then((data) => {
@@ -25,7 +26,9 @@ const Invoices = () => {
       })
       .catch((error) => {
         console.log("Error:", error);
+        console.log(paymentStatus);
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const theme = useTheme();
