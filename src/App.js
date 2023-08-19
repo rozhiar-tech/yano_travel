@@ -69,6 +69,7 @@ function App() {
       // Authentication state has been checked, set loading to false
     });
   }, []);
+  console.log(userInfo);
 
   return (
     <ColorModeContext.Provider value={colorMode}>
