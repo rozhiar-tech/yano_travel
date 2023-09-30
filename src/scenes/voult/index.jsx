@@ -12,11 +12,14 @@ import StatBox from "../../components/StatBox";
 import {
   collection,
   getDocs,
+  getFirestore,
+  where,
+  query,
   updateDoc,
   doc,
-  getFirestore,
 } from "firebase/firestore";
 import app from "../../firebase/firebaseInit";
+
 import { useTheme } from "@emotion/react";
 import { tokens } from "../../theme";
 
@@ -26,6 +29,8 @@ const Vault = () => {
   const [capital, setCapital] = useState(0);
   const [transactions, setTransactions] = useState([]);
   const [additionalCapital, setAdditionalCapital] = useState(0);
+  const [deductedCapital, setDeductedCapital] = useState(0);
+  const [totalLoansGiven, setTotalLoansGiven] = useState(0);
 
   useEffect(() => {
     const getAllTransactions = () => {
@@ -61,6 +66,45 @@ const Vault = () => {
     };
     getCapital();
   }, []);
+  useEffect(() => {
+    // Fetch the total amount of loans given
+    const fetchTotalLoansGiven = async () => {
+      const loansRef = collection(db, "loans");
+      const q = query(loansRef, where("loanType", "==", "given"));
+      const querySnapshot = await getDocs(q);
+
+      let totalLoansGiven = 0;
+      querySnapshot.forEach((doc) => {
+        const loan = doc.data();
+        totalLoansGiven += loan.amount;
+      });
+
+      // Update the state with the total loans given
+      setTotalLoansGiven(totalLoansGiven);
+    };
+
+    // Call the function to fetch total loans given
+    fetchTotalLoansGiven();
+  }, []);
+  const handleDeductCapital = () => {
+    if (isNaN(deductedCapital) || deductedCapital <= 0) {
+      return;
+    }
+
+    const newCapital = capital - parseFloat(deductedCapital);
+
+    // Update the capital in Firestore
+    const capitalRef = doc(db, "capital", "m7Wn6t1mggr5BqQGiqtX");
+    updateDoc(capitalRef, { amount: newCapital })
+      .then(() => {
+        console.log("Capital deducted successfully.");
+        setCapital(newCapital);
+        setDeductedCapital(0);
+      })
+      .catch((error) => {
+        console.error("Error deducting capital: ", error);
+      });
+  };
 
   const calculateOutstandingAmount = (transaction) => {
     return transaction.cost - transaction.profit;
@@ -135,8 +179,8 @@ const Vault = () => {
           justifyContent="center"
         >
           <StatBox
-            title={`$${transactions.reduce((acc, t) => acc + t.cost, 0)}`}
-            subtitle="Total Cost"
+            title={`$${totalLoansGiven}`}
+            subtitle="Total Loans Given"
             progress="0.50" // Replace this with the appropriate progress value
             increase="+10%" // Replace this with the appropriate increase value
           />
@@ -178,6 +222,29 @@ const Vault = () => {
             sx={{ marginBottom: "10px" }}
           >
             Add Capital
+          </Button>
+        </Box>
+        <Box
+          gridColumn="span 6"
+          backgroundColor={colors.primary[400]}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <TextField
+            label="Deduct Capital"
+            type="number"
+            value={deductedCapital}
+            onChange={(e) => setDeductedCapital(e.target.value)}
+            sx={{ marginBottom: "10px", width: "200px", marginRight: "20px" }}
+          />
+          <Button
+            onClick={handleDeductCapital}
+            variant="contained"
+            color="primary"
+            sx={{ marginBottom: "10px" }}
+          >
+            Deduct Capital
           </Button>
         </Box>
       </Box>

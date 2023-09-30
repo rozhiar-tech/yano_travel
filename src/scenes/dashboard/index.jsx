@@ -19,6 +19,7 @@ import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
 import { useState, useEffect } from "react";
+import TransactionModal from "../../components/transactionmodel";
 import {
   collection,
   getDocs,
@@ -35,6 +36,7 @@ const Dashboard = () => {
   const [transactionss, setTransactionss] = useState(0);
   const [latestTransactions, setLatestTransactions] = useState([]);
   const [conversionRate, setConversionRate] = useState(0);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   useEffect(() => {
     const getProfit = async () => {
@@ -286,6 +288,7 @@ const Dashboard = () => {
               alignItems="center"
               borderBottom={`4px solid ${colors.primary[500]}`}
               p="15px"
+              onClick={() => setSelectedTransaction(transaction)}
             >
               <Box>
                 <Typography
@@ -309,6 +312,11 @@ const Dashboard = () => {
               </Box>
             </Box>
           ))}
+          <TransactionModal
+            isOpen={Boolean(selectedTransaction)}
+            onClose={() => setSelectedTransaction(null)}
+            transaction={selectedTransaction || {}} // Provide an empty object as a fallback
+          />
         </Box>
 
         {/* ROW 3 */}

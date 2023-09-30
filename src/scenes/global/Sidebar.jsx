@@ -4,6 +4,7 @@ import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
 import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../theme";
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
@@ -83,7 +84,7 @@ const Sidebar = () => {
                 alignItems="center"
                 ml="15px"
               >
-                <Typography variant="h3" color={colors.grey[100]}>
+                <Typography variant="h6" color={colors.grey[100]}>
                   ADMINIS
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -161,6 +162,13 @@ const Sidebar = () => {
               title="Contacts Information"
               to="/contacts"
               icon={<ContactsOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Loan"
+              to="/loan"
+              icon={<CreditScoreIcon />}
               selected={selected}
               setSelected={setSelected}
             />

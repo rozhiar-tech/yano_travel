@@ -8,6 +8,17 @@ import { CSVLink } from "react-csv";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
+import {
+  query,
+  collection,
+  getDocs,
+  where,
+  getFirestore,
+  updateDoc,
+} from "firebase/firestore";
+import app from "../../firebase/firebaseInit";
+
+const db = getFirestore(app);
 const Invoices = () => {
   const [mockDataInvoices, setMockDataInvoices] = useState([]);
   const [paymentStatus, setPaymentStatus] = useState("pending");
@@ -28,8 +39,26 @@ const Invoices = () => {
         console.log("Error:", error);
         console.log(paymentStatus);
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handlePaymentStatusChange = async (row) => {
+    if (row.paymentStatus === "approved") return;
+
+    try {
+      const q = query(collection(db, "invoices"), where("id", "==", row.id));
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach(async (doc) => {
+        const invoiceRef = doc.ref;
+        await updateDoc(invoiceRef, {
+          paymentStatus: "approved",
+        });
+      });
+    } catch (error) {
+      console.error("Error updating payment status: ", error);
+    }
+  };
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -70,7 +99,7 @@ const Invoices = () => {
       field: "paymentStatus",
       headerName: "Access Level",
       flex: 1,
-      renderCell: ({ row: { paymentStatus } }) => {
+      renderCell: ({ row }) => {
         return (
           <Box
             width="60%"
@@ -78,26 +107,23 @@ const Invoices = () => {
             p="5px"
             display="flex"
             justifyContent="center"
-            onClick={() => {
-              console.log(paymentStatus);
-              if (paymentStatus === "pending") {
-                setPaymentStatus("aproved");
-              }
-            }}
+            onClick={() => handlePaymentStatusChange(row)}
             backgroundColor={
-              paymentStatus === "aproved"
+              row.paymentStatus === "approved"
                 ? colors.greenAccent[600]
-                : paymentStatus === "pending"
+                : row.paymentStatus === "pending"
                 ? colors.greenAccent[700]
                 : colors.greenAccent[700]
             }
             borderRadius="4px"
           >
-            {paymentStatus === "aproved" && <AdminPanelSettingsOutlinedIcon />}
-            {paymentStatus === "pending" && <SecurityOutlinedIcon />}
-            {paymentStatus === "pending" && <LockOpenOutlinedIcon />}
+            {row.paymentStatus === "approved" && (
+              <AdminPanelSettingsOutlinedIcon />
+            )}
+            {row.paymentStatus === "pending" && <SecurityOutlinedIcon />}
+            {row.paymentStatus === "pending" && <LockOpenOutlinedIcon />}
             <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-              {paymentStatus}
+              {row.paymentStatus}
             </Typography>
           </Box>
         );

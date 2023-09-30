@@ -51,7 +51,7 @@ const Products = () => {
             color="secondary"
             variant="contained"
             onClick={() => {
-              window.location.href = "/form"; // Replace with the appropriate URL for creating a new product
+              window.location.href = "/addProduct"; // Replace with the appropriate URL for creating a new product
             }}
           >
             Create New Product

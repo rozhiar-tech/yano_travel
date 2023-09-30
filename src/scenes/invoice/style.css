@@ -1,0 +1,9 @@
+.success{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    height: 200px;
+    background-color: burlywood;
+    color: black;
+}
